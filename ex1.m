@@ -1,36 +1,36 @@
 clc;
 clear;
 pkg load signal;
-pkg load audio;
 
 
-[x, Fs] = auload("Audio.wav"); # audio file
+[x, Fs] = wavread("files/Audio.wav"); # audio file
+
 
 %-----------------Banda ancha-----------------
 window=20*Fs/1000; %20mseg
 step=10*Fs/1000; %5mseg    rebanada=ventana-overlap
-fftn=2^11;%2^9=512
+fftn=2^nextpow2(window);
 figure();
 specgram(x, fftn, Fs, window, window-step);
 
 
 %----------------Banda angosta----------------
-window=67*Fs/1000; %el minimo de banda angosta 
+window=67*Fs/1000; %el minimo de banda angosta
 step=5*Fs/1000; %5mseg
-fftn;
+fftn=2^nextpow2(window);
 figure();
 specgram(x, fftn, Fs, window, window-step);
 
 window=100*Fs/1000; %100mseg
-step; %5mseg 
-fftn;
+step; %5mseg
+fftn=2^nextpow2(window);
 figure();
 specgram(x, fftn, Fs, window, window-step);
 
 %Veo como influye el overlap:
 window; %100mseg
 step=50*Fs/1000; %5mseg
-fftn;
+fftn=2^nextpow2(window);
 figure();
 specgram(x, fftn, Fs, window, window-step);
 
