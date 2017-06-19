@@ -263,3 +263,7 @@ TSWLatexianTemp*
 
 # expex forward references with \gathertags
 *-tags.tex
+
+*.doc#
+octave-workspace
+.python-version
