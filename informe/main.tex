@@ -1,0 +1,94 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Short Sectioned Assignment
+% LaTeX Template
+% Version 1.0 (5/5/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% Original author:
+% Frits Wenneker (http://www.howtotex.com)
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%   PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
+%----------------------------------------------------------------------------------------
+
+\documentclass[paper=a4, fontsize=11pt]{scrartcl} % A4 paper and 11pt font size
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+
+\usepackage{amsmath,amsfonts,amsthm} % Math packages
+\usepackage{sectsty} % Allows customizing section commands
+%\allsectionsfont{\centering \normalfont\scshape} % Make all sections centered, the default font and small caps
+\usepackage{fancyhdr} % Custom headers and footers
+\pagestyle{fancyplain} % Makes all pages in the document conform to the custom headers and footers
+\fancyhead{} % No page header - if you want one, create it in the same way as the footers below
+\fancyfoot[L]{} % Empty left footer
+\fancyfoot[C]{} % Empty center footer
+\fancyfoot[R]{\thepage} % Page numbering for right footer
+\renewcommand{\headrulewidth}{0pt} % Remove header underlines
+\renewcommand{\footrulewidth}{0pt} % Remove footer underlines
+\setlength{\headheight}{13.6pt} % Customize the height of the header
+
+\numberwithin{equation}{section} % Number equations within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+\numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
+
+\setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
+
+%----------------------------------------------------------------------------------------
+%   TITLE SECTION
+%----------------------------------------------------------------------------------------
+
+
+\title{
+\normalfont \normalsize
+\textsc{Facultad de Ingeniería de la Universidad de Buenos Aires} \\ [20pt] % Your university, school and/or department name(s)
+\huge Assignment Title \\ % The assignment title
+}
+
+\author{Juan Manuel Pérez} % Your name
+
+\date{\normalsize\today} % Today's date or a custom date
+
+\newcommand{\stft}{\emph{STFT}}
+
+\begin{document}
+
+\maketitle % Print the title
+
+
+\section{Ejercicio 1}
+
+Recordemos que un espectrograma es una representación visual donde se muestra el espectro de una señal en función del tiempo. Para esto, se separa el dominio del tiempo en ventanas y para cada una se aplica una Transformada de Fourier de Tiempo Corto (\stft)
+
+Para efectuar un análisis de ventana angosta y ancha elegimos los siguientes parámetros:
+
+\begin{itemize}
+    \item 20 ms de ventana, 10 ms de step
+    \item 67 ms de ventana, 5 ms de step
+    \item 100 ms de ventana, 5 ms de step
+    \item
+\end{itemize}
+
+
+\section{Ejercicio 2}
+
+\section{Ejercicio 3}
+
+En este primer intento de duplicar el largo del audio, interpolamos entre muestras del
+
+\section{Ejercicio 4}
+
+\section{Ejercicio 5}
+
+\section{Ejercicio 6}
+
+\section{Ejercicio 7}
+\end{document}
