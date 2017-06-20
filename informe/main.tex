@@ -23,7 +23,6 @@
 \numberwithin{figure}{section} % Number figures within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
 \numberwithin{table}{section} % Number tables within sections (i.e. 1.1, 1.2, 2.1, 2.2 instead of 1, 2, 3, 4)
 
-\setlength\parindent{0pt} % Removes all indentation from paragraphs - comment this line for an assignment with lots of text
 
 %----------------------------------------------------------------------------------------
 %   TITLE SECTION
@@ -51,6 +50,7 @@
 
 Recordemos que un espectrograma es una representación visual donde se muestra el espectro de una señal en función del tiempo. Para esto, se separa el dominio del tiempo en ventanas y para cada una se aplica una Transformada de Fourier de Tiempo Corto (\stft).
 
+
 La \stft tiene los siguientes parámetros:
 
 \begin{itemize}
@@ -69,23 +69,51 @@ Por lo tanto, es necesario entender el trade-off entre ambas y tomar una decisi�
 
 De la tabla de frecuencias de las notas observamos que la distancia mínima entre semitono es de 31hz, con lo cuál necesitamos tener tal resolución como mínimo.
 
-Haciendo una cuenta con las DFTs, obtenemos que el tamaño de la ventana debe ser mayor a 34ms.
+Sabemos que la DFT $X[k]$ de tamaño $N$ es un muestreo de la transformada de Fourier $X(e^{jw})$ cada $2\pi/N$. Queremos que este muestreo pueda distinguir cada 30 hz, con lo cual queremos que
 
+\begin{equation}
+ \frac{2\pi}{N} < \frac{2\pi 30}{Fs}
+\end{equation}
 
-\begin{figure}[t]
-\includegraphics[width=0.5\textwidth]{../images/specgram_w100s50.pdf}
-\includegraphics[width=0.5\textwidth]{../images/specgram_w68s34.pdf}
-\caption{Espectrograma de ventana 100 ms y step de 50 ms}
+Despejando, obtenemos que $N \geq 534$, o lo que es lo mismo, que la ventana debe ser más grande que $0.34ms$
 
+Probamos entonces con los siguientes valores de ventana y step:
+
+\begin{itemize}
+    \item 16 ms de ventana y 8 de step
+    \item 34 ms de ventana y 17 de step
+    \item 100 ms de ventana y 50 de step
+
+\end{itemize}
+
+Podemos observar en \ref{s_16_8} que si bien obtenemos buena resolución temporal, no es posible distinguir las notas. Para las otras elecciones de parámetros (\ref{s_34_17} y \ref{s_100_50}) se distingue mucho mejor las notas, aún cuando en la última configuración perdamos cierta
+
+Finalmente, elegimos una ventana de 100 ms ya que nos brinda mayor nitidez en las frecuencias, aún a cuesta de pérdida de resolución temporal. Podremos, en este caso, distinguir más o menos notas separadas por 100ms, es decir, 10 por segundo.
+
+\begin{figure}[th!]
+\includegraphics[width=\textwidth]{../images/specgram_w16s8.pdf}
+\caption{Espectrograma de ventana 16 ms y step de 8ms}
+\label{s_16_8}
 \end{figure}
 
 
-\newpage
+\begin{figure}[th!]
+\includegraphics[width=\textwidth]{../images/specgram_w34s17.pdf}
+\caption{Espectrograma de ventana 34 ms y step de 17 ms}
+\label{s_34_17}
+\end{figure}
+
+\begin{figure}[th!]
+\includegraphics[width=\textwidth]{../images/specgram_w100s50.pdf}
+\caption{Espectrograma de ventana 100 ms y step de 50 ms}
+\label{s_100_50}
+\end{figure}
+
 
 \section{Ejercicio 3}
 
 \begin{figure}[bh!]
-\includegraphics[scale=1]{../images/specgram_3_interpolated.pdf}
+\includegraphics[width=\textwidth]{../images/specgram_3_interpolated.pdf}
 \caption{Espectrograma del audio interpolado linealmente}
 \label{audio_interp_lineal}
 \end{figure}
@@ -94,7 +122,6 @@ En este primer intento de duplicar el largo del audio, interpolamos entre muestr
 
 Como es de esperarse, esto baja a la mitad el pitch de cada nota, ya que podemos pensar que la onda que antes tardaba N muestras en ciclar ahora le va a tomar 2N. A su vez, la interpolación lineal agrega armónicos de alta frecuencia, como podemos observar en el espectrograma de la figura \ref{audio_interp_lineal}.
 
-\newpage
 
 \section{Ejercicio 4}
 
@@ -104,7 +131,7 @@ En este punto se nos pide reducir el audio a la mitad de la duración usando una
     Y[n] = X[2n]
 \end{equation}
 
-Sabemos por propiedades de la transformada de Fourier en tiempo discreto que esto genera un ensanchamiento del espectro, con lo cuál debemos aplicar un filtro pasa bajos para evitar tener aliasing. El tipo de filtro elegido fue un Butterworth de orden 10 y frecuencia de corte $\frac{\pi}{2}$, es decir, la mitad de la frecuencia de Nyquist.
+Sabemos por propiedades de la transformada de Fourier en tiempo discreto que esto genera un ensanchamiento del espectro, con lo cuál debemos aplicar un filtro pasa bajos para evitar tener aliasing. El tipo de filtro elegido fue un Butterworth de orden 10 y frecuencia de corte $\frac{\pi}{2}$, es decir, la mitad de la frecuencia de Nyquist. La elección de este tipo de filtro se debe a que es uno de los más simples y se mantiene bastante plano hasta la frecuencia de corte.
 
 En la figura \ref{audio_decimado} podemos observar el espectrograma. Como es de esperarse, las frecuencias de las notas se multiplican por dos (suben una octava) producto de que son reproducidas a ``mayor velocidad''.
 
@@ -115,7 +142,6 @@ En la figura \ref{audio_decimado} podemos observar el espectrograma. Como es de 
 \label{audio_decimado}
 \end{figure}
 
-\newpage
 
 
 \section{Ejercicio 5}
@@ -145,7 +171,6 @@ En el gráfico \ref{diff_audio_reconstruido} se puede observar la diferencia ent
 \end{figure}
 
 
-\newpage
 \section{Ejercicio 6}
 
 \begin{figure}[t!]
@@ -163,7 +188,7 @@ Lamentablemente, si bien el grueso energía del espectro se mantiene en las mism
 
 Análogamente a lo hecho en el ejercicio 4, queremos acortar el audio a la mitad pero esta vez manteniendo el contenido espectral. Para ello, aplicamos la reconstrucción sobre una decimación de orden 2 del espectro.
 
-De la misma manera que nos ocurrió en el ejercicio anterior, si bien mantenemos el grueso de la energía en la misma zona de frecuencias, tenemos muchos artefactos (que suenan como un ``traqueteo'') que no pudimos resolver. Podemos observar el espectrograma en
+De la misma manera que nos ocurrió en el ejercicio anterior, si bien mantenemos el grueso de la energía en la misma zona de frecuencias, tenemos muchos artefactos (que suenan como un ``traqueteo'') que no pudimos resolver. Podemos observar el espectrograma en \ref{audio_decimado_espectralmente}
 
 \begin{figure}[b!]
 \includegraphics[width=\textwidth]{../images/specgram_7_decimated.pdf}
