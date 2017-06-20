@@ -1,28 +1,11 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Short Sectioned Assignment
-% LaTeX Template
-% Version 1.0 (5/5/12)
-%
-% This template has been downloaded from:
-% http://www.LaTeXTemplates.com
-%
-% Original author:
-% Frits Wenneker (http://www.howtotex.com)
-%
-% License:
-% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%----------------------------------------------------------------------------------------
-%   PACKAGES AND OTHER DOCUMENT CONFIGURATIONS
-%----------------------------------------------------------------------------------------
 
 \documentclass[paper=a4, fontsize=11pt]{scrartcl} % A4 paper and 11pt font size
 
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
 
+\usepackage{graphicx}
+\usepackage{url}
 \usepackage{amsmath,amsfonts,amsthm} % Math packages
 \usepackage{sectsty} % Allows customizing section commands
 %\allsectionsfont{\centering \normalfont\scshape} % Make all sections centered, the default font and small caps
@@ -50,7 +33,7 @@
 \title{
 \normalfont \normalsize
 \textsc{Facultad de Ingeniería de la Universidad de Buenos Aires} \\ [20pt] % Your university, school and/or department name(s)
-\huge Assignment Title \\ % The assignment title
+\huge Trabajo Práctico de Señales y Sistemas \\ % The assignment title
 }
 
 \author{Juan Manuel Pérez} % Your name
@@ -64,31 +47,127 @@
 \maketitle % Print the title
 
 
-\section{Ejercicio 1}
+\section{Ejercicio 1 y 2}
 
-Recordemos que un espectrograma es una representación visual donde se muestra el espectro de una señal en función del tiempo. Para esto, se separa el dominio del tiempo en ventanas y para cada una se aplica una Transformada de Fourier de Tiempo Corto (\stft)
+Recordemos que un espectrograma es una representación visual donde se muestra el espectro de una señal en función del tiempo. Para esto, se separa el dominio del tiempo en ventanas y para cada una se aplica una Transformada de Fourier de Tiempo Corto (\stft).
 
-Para efectuar un análisis de ventana angosta y ancha elegimos los siguientes parámetros:
+La \stft tiene los siguientes parámetros:
 
 \begin{itemize}
-    \item 20 ms de ventana, 10 ms de step
-    \item 67 ms de ventana, 5 ms de step
-    \item 100 ms de ventana, 5 ms de step
-    \item
+    \item Tipo de ventana
+    \item Tamaño de ventana
+    \item Step
+    \item Tamaño de las FFTs
 \end{itemize}
 
+La elección de estos parámetros nos define la resolución tanto en el tiempo como en el espectro: a mayor tamaño de ventana (mayor N), menos resolución temporal y mayor resolución en las frecuencias; inversamente, si hago decrecer el N obtengo mejor resolución en el tiempo pero peor en las frecuencias.
 
-\section{Ejercicio 2}
+Por lo tanto, es necesario entender el trade-off entre ambas y tomar una decisión al respecto. En nuestro caso, al estar analizando piezas de piano, nos interesa obtener una resolución en frecuencias tal que nos permita distinguir entre dos notas. Así mismo, también queremos tener una resolución temporal que nos permita distinguir temporalmente la ocurrencia de cada nota.
+
+\subsection{Elección de parámetros}
+
+
+De la tabla de frecuencias de las notas observamos que la distancia mínima entre semitono es de 31hz, con lo cuál necesitamos tener tal resolución como mínimo.
+
+Haciendo una cuenta con las DFTs, obtenemos que el tamaño de la ventana debe ser mayor a 34ms.
+
+
+\begin{figure}[t]
+\includegraphics[width=0.5\textwidth]{../images/specgram_w100s50.pdf}
+\includegraphics[width=0.5\textwidth]{../images/specgram_w68s34.pdf}
+\caption{Espectrograma de ventana 100 ms y step de 50 ms}
+
+\end{figure}
+
+
+\newpage
 
 \section{Ejercicio 3}
 
-En este primer intento de duplicar el largo del audio, interpolamos entre muestras del
+\begin{figure}[bh!]
+\includegraphics[scale=1]{../images/specgram_3_interpolated.pdf}
+\caption{Espectrograma del audio interpolado linealmente}
+\label{audio_interp_lineal}
+\end{figure}
+
+En este primer intento de duplicar el largo del audio, interpolamos entre muestras del audio.
+
+Como es de esperarse, esto baja a la mitad el pitch de cada nota, ya que podemos pensar que la onda que antes tardaba N muestras en ciclar ahora le va a tomar 2N. A su vez, la interpolación lineal agrega armónicos de alta frecuencia, como podemos observar en el espectrograma de la figura \ref{audio_interp_lineal}.
+
+\newpage
 
 \section{Ejercicio 4}
 
+En este punto se nos pide reducir el audio a la mitad de la duración usando una decimación de orden dos, es decir
+
+\begin{equation}
+    Y[n] = X[2n]
+\end{equation}
+
+Sabemos por propiedades de la transformada de Fourier en tiempo discreto que esto genera un ensanchamiento del espectro, con lo cuál debemos aplicar un filtro pasa bajos para evitar tener aliasing. El tipo de filtro elegido fue un Butterworth de orden 10 y frecuencia de corte $\frac{\pi}{2}$, es decir, la mitad de la frecuencia de Nyquist.
+
+En la figura \ref{audio_decimado} podemos observar el espectrograma. Como es de esperarse, las frecuencias de las notas se multiplican por dos (suben una octava) producto de que son reproducidas a ``mayor velocidad''.
+
+
+\begin{figure}[t]
+\includegraphics[width=\textwidth]{../images/specgram_4_decimated.pdf}
+\caption{Espectrograma del audio decimado}
+\label{audio_decimado}
+\end{figure}
+
+\newpage
+
+
 \section{Ejercicio 5}
 
+Este punto nos pide reconstruir una señal en base a su espectrograma. Este problema se conoce como la transformada inversa de Fourier de tiempo corto.
+
+En \footnote{\url{http://ieeexplore.ieee.org.sci-hub.cc/abstract/document/1455039/#}}, uno de los primeros trabajos en el área, se discuten dos alternativas para esta tarea. La que decidimos utilizar fue similar al método llamado OverLap Addition (OLA): de cada rebanada espectral, reconstruir un pedazo de la señal y luego concatenarlos.
+
+Para esto,
+
+\begin{itemize}
+    \item Rellenamos con los conjugados simétricos
+    \item Calculamos la \emph{ifft} de cada rebanada
+    \item Dividimos por una ventana de \emph{hanning}
+    \item Concatenamos los distintos segmentos con un offset
+\end{itemize}
+
+El último paso surgió como medida paliativa ya que notábamos que los segmentos iniciales y finales de cada pieza reconstruída resultaban sensiblemente atenuados.
+
+En el gráfico \ref{diff_audio_reconstruido} se puede observar la diferencia entre el audio reconstruído y el audio original. En este caso, la reconstrucción es casi perfecta (salvando principio y final del audio).
+
+
+\begin{figure}[t!]
+\includegraphics[width=\textwidth]{../images/difference_reconstruction_5.pdf}
+\caption{Diferencia entre audio y audio reconstruído espectralmente}
+\label{diff_audio_reconstruido}
+\end{figure}
+
+
+\newpage
 \section{Ejercicio 6}
 
+\begin{figure}[t!]
+\includegraphics[width=\textwidth]{../images/specgram_6_interpolated.pdf}
+\caption{Espectrograma del audio interpolado espectralmente}
+\label{audio_interpolado_espectralmente}
+\end{figure}
+
+En este ejercicio, utilizando la función de síntesis del anterior punto, realizamos la misma idea que en el punto 3 pero esta vez interpolando el espectrograma, con la esperanza de obtener una canción que sea el doble de larga pero con el mismo espectro que la original.
+
+Lamentablemente, si bien el grueso energía del espectro se mantiene en las mismas frecuencia (es decir, son las mismas notas) en el proceso de síntesis se agregan artefactos de alta frecuencia que no supimos cómo remover. Estimamos que dichos artefactos se producen ya que no ``empalmamos'' adecuadamente los distintos segmentos de la señal.
+
+
 \section{Ejercicio 7}
+
+Análogamente a lo hecho en el ejercicio 4, queremos acortar el audio a la mitad pero esta vez manteniendo el contenido espectral. Para ello, aplicamos la reconstrucción sobre una decimación de orden 2 del espectro.
+
+De la misma manera que nos ocurrió en el ejercicio anterior, si bien mantenemos el grueso de la energía en la misma zona de frecuencias, tenemos muchos artefactos (que suenan como un ``traqueteo'') que no pudimos resolver. Podemos observar el espectrograma en
+
+\begin{figure}[b!]
+\includegraphics[width=\textwidth]{../images/specgram_7_decimated.pdf}
+\caption{Espectrograma del audio decimado espectralmente}
+\label{audio_decimado_espectralmente}
+\end{figure}
 \end{document}
