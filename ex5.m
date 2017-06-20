@@ -11,6 +11,9 @@ fftn = 2^nextpow2(win);
 
 [S, f, t] = specgram(audio, fftn, fs, win, win-stp);
 
-new_audio = reconstruct(S, win, stp, 10);
+new_audio = reconstruct(S, win, stp, 100);
 
-plot(new_audio - audio(1:length(new_audio)));
+hf = figure()
+plot(new_audio(100:end) - audio(100:length(new_audio)));
+
+print(hf, "images/difference_reconstruction_5.pdf");

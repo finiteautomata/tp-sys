@@ -6,8 +6,7 @@ pkg load signal
 win = fix(200 * fs / 1000);
 stp = fix(100 * fs / 1000);
 fftn = 2^nextpow2(win);
-[S, f, t] = specgram(audio, fftn, fs, win, win-stp);
-%Espectrograma original
+
 figure();
 specgram(audio, fftn, fs, win, win-stp);
 
@@ -20,6 +19,9 @@ endfunction
 
 S=interpolate_spec(S);
 
-
-
 new_audio = reconstruct(S, win, stp, 300);
+
+hf = figure();
+specgram(new_audio, fftn, fs, win, win-stp);
+
+print(hf, "images/specgram_6_interpolated.pdf")

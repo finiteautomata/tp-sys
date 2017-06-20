@@ -1,31 +1,33 @@
 clc;
 clear;
 pkg load signal;
-pkg load audio;
 
 
-[x, Fs] = auload(file_in_loadpath("Audio.wav")); # audio file
-largo_window=100; %100mseg
-largo_rebanada=50; %50mseg para que sea la mitad de overlap
-fftn=2^11;%2^11=2048
-step = fix(largo_rebanada*Fs/1000);    
-window = fix(largo_window*Fs/1000);
-[S,t,f]=specgram( x, fftn, Fs, window-step); %(X, N, FS, WINDOW, OVERLAP)
+function filtered_audio = do_filter(x, Fs, wc)
+    orden_filtro=10;
+    [b,a] = butter(orden_filtro,wc);
 
-%----decimar-----
-%%%%%Configuracion Filtro Butterworth
-wc=Fs/4;
-nysq=Fs/2;
-orden_filtro=10;
-[b,a] = butter(orden_filtro,wc/nysq);
+    filtered_audio=filter(b, a, x); %se aplica el filtro con el audio orginal
+endfunction
 
-audio_filtrado=filter(b, a, x); %se aplica el filtro con el audio orginal
-audio_decimado=audio_filtrado(1:2:end); %agarro una muestra cada 2 del audio original
+[x, Fs] = wavread("files/Audio.wav");
+step = fix(50*Fs/1000);
+window = fix(100*Fs/1000);
+fftn=2^nextpow2(window)
+
+specgram( x, fftn, Fs, window, window-step);
+
+filtered_audio = do_filter(x, Fs, 0.5);
 
 figure();
-plot(audio_decimado);
-figure();
-plot(x);
-wavwrite(audio_decimado, Fs, "audio_decimado4.wav");
-figure();
-specgram(audio_decimado,Fs);
+specgram( filtered_audio, fftn, Fs, window, window-step);
+
+
+hf = figure();
+
+decimated_audio = filtered_audio(1:2:end); %agarro una muestra cada 2 del audio original
+wavwrite(decimated_audio, Fs, "files/generated/audio_4_decimated.wav");
+specgram( decimated_audio, fftn, Fs, window, window-step);
+
+print(hf, "images/specgram_4_decimated.pdf");
+
